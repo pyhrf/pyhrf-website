@@ -6,13 +6,14 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
+REPODIR       = $(BUILDDIR)/pyhrf.github.io
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest upload
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -32,6 +33,7 @@ help:
 	@echo "  changes    to make an overview of all changed/added/deprecated items"
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
+	@echo "  upload     to update the site on the server"
 
 clean:
 	-rm -rf $(BUILDDIR)/*
@@ -128,3 +130,16 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+upload:
+	make clean
+	make html && \
+	git clone --no-checkout --depth 1 https://github.com/pyhrf/pyhrf.github.io.git $(REPODIR) && \
+	touch $(REPODIR)/.nojekyll && \
+	cp -r $(BUILDDIR)/html/* $(REPODIR) && \
+	cd $(REPODIR) && \
+	git add -A && \
+	git commit -am 'Updating PyHRF site' && \
+	git push origin master
+
+
